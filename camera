@@ -1,0 +1,63 @@
+def getRay(imgNode, camNode, x, y, view, fr=None):
+    """Returns a (centre, direction) tuple defining a ray from the camera centre through an x,y point on the image plane at a specific frame.
+
+       imgNode - a nuke.Node object that provides the image. (Only used to retrieve image width and height.)
+       camNode - a nuke.Node object of the camera
+       x, y - screen coordinates of the point on the image
+    """
+    if not fr:
+        fr = nuke.frame()
+    # camera matrix
+    m = nuke.math.Matrix3()
+    for i in range(3):
+        for j in range(3):
+            m[i + j * 3] = camNode['world_matrix'].getValue(j + i * 4, view, fr)
+    c = nuke.math.Vector3(*[camNode['world_matrix'].getValue(i, view, fr) for i in [3, 7, 11]])
+    #
+    v = m * nuke.math.Vector3(
+        (float(x) / imgNode.width() - 0.5) * camNode['haperture'].getValue(0, view, fr),
+        (float(y) / imgNode.height() - 0.5) * camNode['vaperture'].getValue(0, view, fr),
+        -camNode['focal'].getValue(0, view, ))
+    return (c, v)
+    
+    
+def get_transformation_in_parent_space(parent_transform, object_transform):
+
+    object_transform_local = parent_transform.inverse() * object_transform
+    return object_transform_local
+    
+    
+    
+    
+    
+    
+    
+# class Ask(nukescripts.PythonPanel):
+#     def __init__(self, title, message, options):
+#         # super(AskPanel, self).__init__('Ask')
+#         nukescripts.PythonPanel.__init__(self, 'Ask')
+#         self._buttons = {}
+#         for option in options:
+#             knob_name = option.lower().replace(' ', '_')
+#             knob = nuke.PyScript_Knob(knob_name, option)
+#             self._buttons[knob_name] = knob
+#             self.addKnob(knob)
+#         self._chosen_option = -1
+#
+#     def __call__(self, cls):
+#         # return self._chosen_option
+#         return cls
+#
+#     def knobChanged(self, knob):
+#         print 'knob changed function called'
+#         if knob in self._buttons.values():
+#             print 'knob changed'
+#             self._chosen_option = self._buttons.keys().index(
+#                 knob.name()
+#             )
+#
+#
+# title, message, options = "Test", "what?", ["OK", "No"]
+# test = Ask(title, message, options)
+# test.showModal()
+# print test._chosen_option
