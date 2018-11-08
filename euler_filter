@@ -163,3 +163,73 @@ print 180 + (-67.394)
 print 180 - (-99.495)
 print 180 + (67.621)
 
+### Maya ###
+object = 'chair01:base_startPivot_ctrl'
+original_curve = []
+for frame in xrange(1020, 1031):
+    original_curve.append(list(cmds.getAttr(object + '.rotate', time=frame)[0]))
+
+fixed_curve = original_curve
+
+import itertools
+import operator
+
+for index, original_rotation in enumerate(fixed_curve):
+    if index == 0:
+        continue
+    previous_rotation = fixed_curve[index-1]
+    if previous_rotation == original_rotation:
+        continue
+    fixed_curve[index] = fix_flip(previous_rotation, original_rotation)
+    
+    
+for index, val in enumerate(fixed_curve):
+    print str(original_curve[index]) +  '  ==>  ' + str(val)
+
+
+
+
+def fix_flip(previous_rotation, original_rotation):
+    combinations = [
+        [180, 180, 180],
+        [180, 180, -180],
+        [180, -180, 180],
+        [180, -180, -180],
+        [-180, 180, 180],
+        [-180, 180, -180],
+        [-180, -180, 180],
+        [-180, -180, -180],
+    ]
+    
+    
+    #print_pattern = "{0} {1} {2}"
+    print_pattern = "[{0}, {1}, {2}]"
+    
+    vec = [x1 - x2 for (x1, x2) in zip(previous_rotation, original_rotation)]
+    original_mag = sum(itertools.imap(operator.mul, vec, vec))
+    magnitudes = []
+    other_rotations = []
+    #print previous_rotation
+    #print original_rotation
+    #print '*'*10
+    for index, comb in enumerate(combinations):
+        #print comb
+        other_rotation = eval(print_pattern.format(
+            comb[0] + original_rotation[0],
+            comb[1] - original_rotation[1],
+            comb[2] + original_rotation[2],
+        ))
+        other_rotations.append(other_rotation)
+        #print other_rotation
+        #print '-'*10
+        #cameras[index]['rotate'].setValue(other_rotation)
+        vec = [x1 - x2 for (x1, x2) in zip(previous_rotation, other_rotation)]
+        magnitudes.append(sum(itertools.imap(operator.mul, vec, vec)))
+    
+    #print '*'*10
+    min_mag = min(magnitudes)
+    if min_mag < original_mag:
+        return other_rotations[magnitudes.index(min_mag)]
+    else:
+        return original_rotation
+    #print '*'*10
