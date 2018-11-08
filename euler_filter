@@ -162,14 +162,15 @@ pattern = "{0} {1} {2}".format(
 print 180 + (-67.394)
 print 180 - (-99.495)
 print 180 + (67.621)
-
+=================================================================================================
 ### Maya ###
+=================================================================================================
 object = 'chair01:base_startPivot_ctrl'
 original_curve = []
-for frame in xrange(1020, 1031):
+for frame in xrange(1001, 1101):
     original_curve.append(list(cmds.getAttr(object + '.rotate', time=frame)[0]))
 
-fixed_curve = original_curve
+fixed_curve = list(original_curve)
 
 import itertools
 import operator
@@ -184,7 +185,11 @@ for index, original_rotation in enumerate(fixed_curve):
     
     
 for index, val in enumerate(fixed_curve):
-    print str(original_curve[index]) +  '  ==>  ' + str(val)
+    frame = 1001 + index
+    if val != original_curve[index]:
+        print str(original_curve[index]) +  '  ==>  ' + str(val)
+        cmds.currentTime( frame, update=False)
+        cmds.setAttr( object + '.rotate', val[0], val[1], val[2])
 
 
 
