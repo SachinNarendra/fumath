@@ -1,0 +1,165 @@
+# Export from maya
+object = 'pTorus_baked1'
+curve = []
+for frame in xrange(1, 31):
+    curve.extend(cmds.getAttr(object + '.rotate', time=frame))
+print curve
+
+
+
+# Import in Nuke
+
+from dnnuke.utils import maths
+
+test_rot =
+	[(79.385, -81.171, -79.719),
+	 (75.27518800000001, -81.68407200000001, -75.59348),
+	 (64.119984, -83.07669600000001, -64.39563999999999),
+	 (47.68073600000002, -85.12898400000002, -47.89356),
+	 (27.718791999999986, -87.62104800000002, -27.855319999999963),
+	 (5.995500000000052, -90.333, -6.049000000000047),
+	 (-15.727791999999985, -93.044952, 15.757319999999988),
+	 (-35.68973600000003, -95.53701600000002, 35.79556000000004),
+	 (-52.12898399999998, -97.58930400000001, 52.29763999999999),
+	 (-63.284188000000015, -98.98192800000001, 63.49548000000001)]
+
+
+new_curve = []
+new_curve.append(list(test_rot[0]))
+for i in range(len(test_rot) -1): 
+    print i
+    rot_B = list(test_rot[i+1])
+    rot_A = list(test_rot[i])
+    new_curve.append(maths.nearestRotation(rot_B, rot_A, 'XYZ'))
+
+frame_pattern = 'x{0} {1}'
+curve_pattern = '{{curve {0}}}'
+curves_1 = ['', '', '']
+curves_2 = ['', '', '']
+
+handler = curves_2
+for index, rot in enumerate(new_curve):
+    frame = 1001 + index
+    for i in range(3):
+        handler[i] = handler[i] + frame_pattern.format(frame, rot[i]) + ' '
+
+
+
+
+
+sn()['rotate'].fromScript(' '.join([curve_pattern.format(curve) for curve in curves_2]))
+
+
+
+import itertools
+import operator
+
+original_rotation = [40, 50, 20]
+other_rotation = [220, 130, 200]
+target_rotation = [40, 70, 20]
+
+
+original_rotation = [-67.394, -99.495, 67.621]
+other_rotation = [180 + original_rotation[0], 180 - original_rotation[1], 180 + original_rotation[2]]
+
+target_rotation = [40, 70, 20]
+
+
+
+vec1 = [x1 - x2 for (x1, x2) in zip(original_rotation, target_rotation)]
+vec2 = [x1 - x2 for (x1, x2) in zip(other_rotation, target_rotation)]
+
+print sum(itertools.imap(operator.mul, vec1, vec1))
+
+print sum(itertools.imap(operator.mul, vec2, vec2))
+
+
+
+
+
+for i in range(len(test_rot) -1): 
+    print test_rot[i]
+    print new_curve[i]
+    print '*' * 10
+
+# =======================
+
+
+
+print 112.606 - (-67.394)  #=180
+print -80.505 + (-99.495)  #=-180
+print -112.379 - (67.621)  #=-180
+
+source_camera = nuke.toNode('Source_Camera')
+fixed_camera = nuke.toNode('Fixed_Camera')
+cameras = sorted(nuke.selectedNodes(), key=lambda cam:cam.name())
+
+
+previous_rotation = [79.385, -81.171, -79.719]
+original_rotation = [-67.394, -99.495, 67.621]
+[180, -180, -180]
+
+previous_rotation = [-11, 110, 10]
+original_rotation = [220, -230, -160]
+[-180, -180, 180]
+
+
+previous_rotation = [-11, 110, -80]
+original_rotation = [31, 30, -10]
+[-180, 180, -180]
+
+combinations = [
+    [180, 180, 180],
+    [180, 180, -180],
+    [180, -180, 180],
+    [180, -180, -180],
+    [-180, 180, 180],
+    [-180, 180, -180],
+    [-180, -180, 180],
+    [-180, -180, -180],
+]
+
+
+print_pattern = "{0} {1} {2}"
+print_pattern = "[{0}, {1}, {2}]"
+
+vec = [x1 - x2 for (x1, x2) in zip(previous_rotation, original_rotation)]
+original_mag = sum(itertools.imap(operator.mul, vec, vec))
+magnitudes = []
+
+print original_rotation
+print '*'*10
+for index, comb in enumerate(combinations):
+    print comb
+    other_rotation = eval(print_pattern.format(
+        comb[0] + original_rotation[0],
+        comb[1] - original_rotation[1],
+        comb[2] + original_rotation[2],
+    ))
+    print other_rotation
+    print '-'*10
+    cameras[index]['rotate'].setValue(other_rotation)
+    vec = [x1 - x2 for (x1, x2) in zip(previous_rotation, other_rotation)]
+    magnitudes.append(sum(itertools.imap(operator.mul, vec, vec)))
+
+print '*'*10
+min_mag = min(magnitudes)
+if min_mag < original_mag:
+    print combinations[magnitudes.index(min_mag)]
+else:
+    print [0, 0, 0]
+print '*'*10
+
+
+
+
+pattern = "{0} {1} {2}".format(
+	180 + (-67.394),
+	- 180 - (-99.495),
+	- 180 + (67.621)
+)
+
+print 180 + (-67.394)
+print 180 - (-99.495)
+print 180 + (67.621)
+
